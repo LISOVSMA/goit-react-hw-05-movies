@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 
 export const List = styled.ul`
-  list-style: none;
   font-size: 20px;
   font-weight: 600;
+  list-style-type: square;
 `;
 
 export const Item = styled.li`
