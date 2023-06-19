@@ -1,10 +1,20 @@
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { Form, Icon } from './SearchMovie.styled';
 
-export const SearchMovie = ({ value, onChange }) => {
+export const SearchMovie = ({ onChange, errorMessage }) => {
+  const [query, setQuery] = useState('');
+
+  const changeQuery = e => {
+    setQuery(e.target.value.toLowerCase());
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
+    if (!query) return errorMessage();
+    onChange(query);
+    setQuery('');
   };
 
   return (
@@ -12,9 +22,10 @@ export const SearchMovie = ({ value, onChange }) => {
       <h3>Movie Search</h3>
       <DebounceInput
         type="text"
+        name="query"
         debounceTimeout={500}
-        value={value}
-        onChange={e => onChange(e.target.value)}
+        value={query}
+        onChange={changeQuery}
         placeholder="enter movie name"
       />
       <Icon />
@@ -23,6 +34,6 @@ export const SearchMovie = ({ value, onChange }) => {
 };
 
 SearchMovie.propTypes = {
-  value: propTypes.string,
-  onChange: propTypes.func,
+  onChange: PropTypes.func.isRequired,
+  errorMessage: PropTypes.func.isRequired,
 };

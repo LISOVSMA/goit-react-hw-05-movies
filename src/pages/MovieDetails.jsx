@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useRef, Suspense } from 'react';
-import { useParams, Link, Outlet, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  Link,
+  Outlet,
+  useLocation,
+  Navigate,
+} from 'react-router-dom';
 import { getDetails } from 'services/moviesApi';
 import Button from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
@@ -12,28 +18,34 @@ import {
   ProdCompany,
 } from './MovieDetails.styled';
 
-
 const MovieDetails = () => {
   const { movieId } = useParams();
   const [movieDetails, setMovieDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const location = useLocation();
   const backLink = useRef(location.state?.from || '/');
 
   useEffect(() => {
-    const movieDetails = async () => {
+    const movieDetailsInfo = async () => {
+      setIsLoading(true);
       try {
         const movie = await getDetails(movieId);
         setMovieDetails(movie);
+        setError('');
       } catch (error) {
+        setError(error.message);
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    movieDetails();
-  }, [movieId]);
+    movieDetailsInfo();
+  }, [movieId, setMovieDetails]);
 
   if (!movieDetails) {
-    return <Loader />;
+    return;
   }
 
   const prodCompaniesList = movieDetails.production_companies?.map(
@@ -63,6 +75,8 @@ const MovieDetails = () => {
       <Link to={backLink.current}>
         <Button text="Go back" />
       </Link>
+      {error && <Navigate to="/" replace />}
+      {isLoading && <Loader />}
       <Container backdrop={movieDetails.backdrop_path}>
         <Description>
           <h1>{movieDetails.title}</h1>
@@ -93,6 +107,7 @@ const MovieDetails = () => {
           />
         </ImageContainer>
       </Container>
+
       <hr />
       <h3>Additional information</h3>
       <Link to="cast">
